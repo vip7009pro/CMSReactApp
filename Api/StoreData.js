@@ -6,6 +6,7 @@ export const _storeData = async (key,value) => {
         key,
         value
       );
+      console.log("Đã set item")
     } catch (error) {
       // Error saving data
     }
@@ -16,8 +17,9 @@ export  const _retrieveData = async (key) => {
       const value = await AsyncStorage.getItem(key);
       if (value !== null) {
         // We have data!!
+        //console.log("Gia tri key = " +  value);
         return value;
-        console.log("Gia tri key = " +  value);
+        
         Alert.alert(value);
       }
       else
@@ -26,8 +28,7 @@ export  const _retrieveData = async (key) => {
       }
 
     } catch (error) {
-      // Error retrieving data
-      
+      // Error retrieving data      
     }
   };
   

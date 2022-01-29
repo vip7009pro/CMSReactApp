@@ -2,59 +2,59 @@ import React, { useEffect, useState } from 'react';
 import { ImageBackground, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, Alert, Button } from 'react-native';
 import { generalQuery, login } from '../../Api/Api';
 import { _retrieveData, _storeData } from '../../Api/StoreData';
-export default function AuthScreen({ navigation }) {    
+export default function AuthScreen({navigation}) {
     const [user, setUser] = useState('');
     const [pass, setPass] = useState('');
     const [loginState, setloginState] = useState(0);
-
-
-    useEffect(() => {       
-        let userdata = _retrieveData('userdata');
-        console.log(userdata);
-        
-        if(userdata!=-1) 
-        {
-          setloginState(1);
-          
-        }
-        else
-        {
-          setloginState(0);
-        }
+    const navi = () => {
+        navigation.navigate('Details');
+    }
+    useEffect(() => {
+        (async () => {
+            let userdata = await _retrieveData('userdata');
+            //console.log('user data = ' + userdata);
+            if (userdata.login_status == 'ok') {
+                setloginState(1);
+            }
+            else {
+                setloginState(0);
+            }
+        })();
         return () => { };
-      }, []);
-
+    }, []);
     const handleSubmit = async () => {
-        submitData = {
+        let submitData = {
             user: user,
             pass: pass
         };
         generalQuery('login2', submitData)
             .then(response => {
-                let kq = response.data.tk_status;               
-                if(kq == 'ok')
-                {
-                    let userData = response.data.user_data;                    
-                    console.log(JSON.parse(userData));
-                    _storeData('userdata',JSON.stringify(userData));
-                    navigation.navigate('Details');
+                let kq = response.data.tk_status;
+                if (kq == 'ok') {
+                    let userData = {
+                        login_status: 'ok',
+                        userInfo: response.data.user_data
+                    };
+                    //console.log(userData);
+                    _storeData('userdata', JSON.stringify(userData));
+                    //_storeData('userdata','useroke333333');
+                    let storeddata = _retrieveData('userdata');
+                    //console.log('data luu tru la: ' + storeddata);
+                    navigation.navigate('Home');
                 }
-                else
-                {
+                else {
                     Alert.alert(
                         "Thông báo",
                         "Tên đăng nhập hoặc mật khẩu không đúng",
-                        [                          
-                          { text: "OK", onPress: () => console.log("OK Pressed") }
+                        [
+                            { text: "OK", onPress: () => console.log("OK Pressed") }
                         ]
-                      );
-                  
+                    );
                 }
             })
             .catch(error => {
                 console.log(error);
             })
-
     };
     return (
         <ImageBackground source={require('../LoginPage/basic.png')} style={styles.image}>
@@ -67,7 +67,7 @@ export default function AuthScreen({ navigation }) {
                         <TouchableOpacity style={styles.button} onPress={() => { handleSubmit(); }}>
                             <Text style={styles.buttonText}>Login</Text>
                         </TouchableOpacity>
-                        <Button title="Go to Detail" onPress={() => navigation.navigate('Details')} />
+                        <Button title="Go to Detail" onPress={() => { navi(); }} />
                     </View>
                 </View>
             </View>
